@@ -7,11 +7,11 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-type mysqlConn struct {
+type MysqlConn struct {
 	DBConnection *sql.DB
 }
 
-func CreateMysqlConnection(host string, username string, password string, dbname string) (Conn *mysqlConn, err error) {
+func CreateMysqlConnection(host string, username string, password string, dbname string) (Conn *MysqlConn, err error) {
 	dbConn, err := sql.Open(
 		"mysql",
 		fmt.Sprintf("%s:%s@tcp(%s)/%s", username, password, host, dbname ),
