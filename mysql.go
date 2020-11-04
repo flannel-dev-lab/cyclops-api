@@ -17,6 +17,10 @@ func CreateMysqlConnection(host string, username string, password string, dbname
 		fmt.Sprintf("%s:%s@tcp(%s)/%s", username, password, host, dbname ),
 	)
 
+	if err != nil {
+		return DB, err
+	}
+
 	DB.Conn = dbConn
 
 	return DB, err
