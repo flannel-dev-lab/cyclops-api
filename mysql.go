@@ -21,9 +21,11 @@ func CreateMysqlConnection(host string, username string, password string, dbname
 		return DB, err
 	}
 
-	DB.Conn = dbConn
+	Database := MysqlConn{
+		Conn: dbConn,
+	}
 
-	return DB, err
+	return &Database, err
 }
 
 func (db *MysqlConn) Query(query string, args interface{}) (rows *sql.Rows, err error) {
