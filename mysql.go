@@ -22,7 +22,7 @@ func CreateMysqlConnection(host string, username string, password string, dbname
 	return Conn, err
 }
 
-func (conn *mysqlConn) Query(query string, args interface{}) (rows *sql.Rows, err error) {
+func (conn *MysqlConn) Query(query string, args interface{}) (rows *sql.Rows, err error) {
 	rows, err = conn.DBConnection.Query(query, args)
 	if err != nil {
 		sentry.CaptureException(err)
@@ -30,13 +30,13 @@ func (conn *mysqlConn) Query(query string, args interface{}) (rows *sql.Rows, er
 	return
 }
 
-func (conn *mysqlConn) QueryRow(query string, args interface{}) (row *sql.Row) {
+func (conn *MysqlConn) QueryRow(query string, args interface{}) (row *sql.Row) {
 	row = conn.DBConnection.QueryRow(query, args)
 
 	return
 }
 
 // CloseConnection Closes a DB Connection
-func (conn *mysqlConn) CloseConnection() error {
+func (conn *MysqlConn) CloseConnection() error {
 	return conn.DBConnection.Close()
 }
