@@ -8,35 +8,35 @@ import (
 )
 
 type MysqlConn struct {
-	DBConnection *sql.DB
+	Conn *sql.DB
 }
 
-func CreateMysqlConnection(host string, username string, password string, dbname string) (Conn *MysqlConn, err error) {
+func CreateMysqlConnection(host string, username string, password string, dbname string) (DB *MysqlConn, err error) {
 	dbConn, err := sql.Open(
 		"mysql",
 		fmt.Sprintf("%s:%s@tcp(%s)/%s", username, password, host, dbname ),
 	)
 
-	Conn.DBConnection = dbConn
+	DB.Conn = dbConn
 
-	return Conn, err
+	return DB, err
 }
 
-func (conn *MysqlConn) Query(query string, args interface{}) (rows *sql.Rows, err error) {
-	rows, err = conn.DBConnection.Query(query, args)
+func (db *MysqlConn) Query(query string, args interface{}) (rows *sql.Rows, err error) {
+	rows, err = db.Conn.Query(query, args)
 	if err != nil {
 		sentry.CaptureException(err)
 	}
 	return
 }
 
-func (conn *MysqlConn) QueryRow(query string, args interface{}) (row *sql.Row) {
-	row = conn.DBConnection.QueryRow(query, args)
+func (db *MysqlConn) QueryRow(query string, args interface{}) (row *sql.Row) {
+	row = db.Conn.QueryRow(query, args)
 
 	return
 }
 
 // CloseConnection Closes a DB Connection
-func (conn *MysqlConn) CloseConnection() error {
-	return conn.DBConnection.Close()
+func (db *MysqlConn) CloseConnection() error {
+	return db.Conn.Close()
 }
