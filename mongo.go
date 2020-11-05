@@ -13,10 +13,10 @@ type MongoConn struct {
 }
 
 // CreateMongoConnection Creates a DB Connection with the Database specified on the url
-func CreateMongoConnection(username, password, url string) (*MongoConn, error) {
+func CreateMongoConnection(driver, username, password, url string) (*MongoConn, error) {
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(fmt.Sprintf("%s://%s:%s@%s", "mongodb+srv", username, password, url)))
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(fmt.Sprintf("%s://%s:%s@%s", driver, username, password, url)))
 	if err != nil {
 		return nil, err
 	}
