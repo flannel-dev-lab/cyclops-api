@@ -17,6 +17,9 @@ func CreateMongoConnection(username, password, url string) (*MongoConn, error) {
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(fmt.Sprintf("%s://%s:%s@%s", "mongodb+srv", username, password, url)))
+	if err != nil {
+		return nil, err
+	}
 
 	connection := MongoConn{
 		Conn: client,
