@@ -56,8 +56,8 @@ func NewContext(res http.ResponseWriter, req *http.Request) *Context {
 }
 
 func (ctx *Context) SendError(error error, status int) {
-	ctx.Response.WriteHeader(status)
 	ctx.Response.Header().Set("Content-Type", "application/json")
+	ctx.Response.WriteHeader(status)
 
 	bytesRep, _ := json.Marshal(error.Error())
 	_, _ = ctx.Response.Write(bytesRep)
@@ -65,8 +65,8 @@ func (ctx *Context) SendError(error error, status int) {
 
 //
 func (ctx *Context) SendSuccess(body interface{}) {
-	ctx.Response.WriteHeader(http.StatusOK)
 	ctx.Response.Header().Set("Content-Type", "application/json")
+	ctx.Response.WriteHeader(http.StatusOK)
 
 	bytesRep, _ := json.Marshal(body)
 	_, _ = ctx.Response.Write(bytesRep)
