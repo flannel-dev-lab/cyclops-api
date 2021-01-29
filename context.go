@@ -77,6 +77,7 @@ func (ctx *Context) SendError(error error, status int) {
 
 	bytesRep, _ := json.Marshal(error.Error())
 	_, _ = ctx.Response.Write(bytesRep)
+	ctx.close()
 }
 
 //
@@ -86,38 +87,51 @@ func (ctx *Context) SendSuccess(body interface{}) {
 
 	bytesRep, _ := json.Marshal(body)
 	_, _ = ctx.Response.Write(bytesRep)
+	ctx.close()
 }
 
 func (ctx *Context) NotFound() {
 	ctx.Response.WriteHeader(http.StatusNotFound)
+	ctx.close()
 }
 
 func (ctx *Context) MethodNotAllowed() {
 	ctx.Response.WriteHeader(http.StatusMethodNotAllowed)
+	ctx.close()
 }
 
 func (ctx *Context) NoContent() {
 	ctx.Response.WriteHeader(http.StatusNoContent)
+	ctx.close()
 }
 
 func (ctx *Context) UnprocessableEntity() {
 	ctx.Response.WriteHeader(http.StatusUnprocessableEntity)
+	ctx.close()
 }
 
 func (ctx *Context) Unauthorized() {
 	ctx.Response.WriteHeader(http.StatusUnauthorized)
+	ctx.close()
 }
 
 func (ctx *Context) BadRequest() {
 	ctx.Response.WriteHeader(http.StatusBadRequest)
+	ctx.close()
 }
 
 func (ctx *Context) InternalServerError(err error) {
 	sentry.CaptureException(err)
 	fmt.Println(err.Error())
 	ctx.Response.WriteHeader(http.StatusInternalServerError)
+	ctx.close()
 }
 
 func (ctx *Context) Ok() {
 	ctx.Response.WriteHeader(http.StatusOK)
+	ctx.close()
+}
+
+func (ctx *Context) close() {
+	ctx.SpanRoot.Finish()
 }
