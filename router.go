@@ -116,6 +116,9 @@ func (r *Routes) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 			resource.Handler.ServeHTTP(ctx)
 		}
 	}
+
+	// Close anything necessary on the context
+	ctx.Close()
 }
 
 func (f HandlerFunc) ServeHTTP(context *Context) {
