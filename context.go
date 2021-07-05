@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/getsentry/sentry-go"
+	"github.com/google/uuid"
 	"net/http"
 	"net/url"
 	"sync"
@@ -16,6 +17,7 @@ type Context struct {
 	Request   *http.Request
 	Params    url.Values
 	Data      *sync.Map
+	SpanRoot  *sentry.Span
 	RouteInfo struct {
 		VersionName     string
 		ResourceName    string
@@ -51,6 +53,16 @@ func NewContext(res http.ResponseWriter, req *http.Request) *Context {
 	if SentryEnabled {
 		hub = sentry.CurrentHub().Clone()
 	}
+	// Determine Trace ID
+	traceId := req.Header.Get("TRACE-ID")
+	if traceId == "" {
+		traceId = "unknown_" + uuid.New().String()
+	}
+
+	spanRoot := sentry.StartSpan(req.Context(), "New Context",
+		sentry.TransactionName(traceId))
+
+	copy(spanRoot.TraceID[:], traceId)
 
 	return &Context{
 		Context:   req.Context(),
@@ -58,18 +70,22 @@ func NewContext(res http.ResponseWriter, req *http.Request) *Context {
 		Request:   req,
 		Params:    params,
 		Data:      data,
+		SpanRoot:  spanRoot,
 		sentryHub: hub,
 	}
 }
 
 func (ctx *Context) SendError(error error, status int) {
+	ctx.Response.Header().Set("Content-Type", "application/json")
 	ctx.Response.WriteHeader(status)
+
 	bytesRep, _ := json.Marshal(error.Error())
 	_, _ = ctx.Response.Write(bytesRep)
 }
 
 //
 func (ctx *Context) SendSuccess(body interface{}) {
+	ctx.Response.Header().Set("Content-Type", "application/json")
 	ctx.Response.WriteHeader(http.StatusOK)
 
 	bytesRep, _ := json.Marshal(body)
@@ -138,4 +154,8 @@ func (ctx *Context) HubBreadcrumb(category, msg string, data map[string]interfac
 		},
 			&sentry.BreadcrumbHint{})
 	}
+}
+
+func (ctx *Context) Close() {
+	ctx.SpanRoot.Finish()
 }
