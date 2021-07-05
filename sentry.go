@@ -1,9 +1,9 @@
 package cycapi
 
 import (
-	"github.com/getsentry/sentry-go"
 	"log"
 	"time"
+	"github.com/getsentry/sentry-go"
 )
 
 var SentryEnabled = false
