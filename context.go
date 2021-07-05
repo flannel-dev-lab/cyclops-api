@@ -10,7 +10,6 @@ import (
 	"sync"
 )
 
-
 type Context struct {
 	context.Context
 	Response  http.ResponseWriter
@@ -18,14 +17,15 @@ type Context struct {
 	Params    url.Values
 	Data      *sync.Map
 	RouteInfo struct {
-		VersionName		string
-		ResourceName	string
-		ResourceID		string
-		SubresourceName	string
-		SubresourceID	string
-		Method			string
-		CustomMethod	string
+		VersionName     string
+		ResourceName    string
+		ResourceID      string
+		SubresourceName string
+		SubresourceID   string
+		Method          string
+		CustomMethod    string
 	}
+	sentryHub *sentry.Hub
 }
 
 func NewContext(res http.ResponseWriter, req *http.Request) *Context {
@@ -46,12 +46,19 @@ func NewContext(res http.ResponseWriter, req *http.Request) *Context {
 
 	data := &sync.Map{}
 
+	// Initialize Sentry Hub and attach it to the context if sentry is initialized
+	var hub *sentry.Hub
+	if SentryEnabled {
+		hub = sentry.CurrentHub().Clone()
+	}
+
 	return &Context{
-		Context:     req.Context(),
-		Response:    res,
-		Request:     req,
-		Params:      params,
-		Data:        data,
+		Context:   req.Context(),
+		Response:  res,
+		Request:   req,
+		Params:    params,
+		Data:      data,
+		sentryHub: hub,
 	}
 }
 
@@ -101,4 +108,34 @@ func (ctx *Context) InternalServerError(err error) {
 
 func (ctx *Context) Ok() {
 	ctx.Response.WriteHeader(http.StatusOK)
+}
+
+func (ctx *Context) SetTag(key, value string) {
+	if ctx.sentryHub != nil && SentryEnabled {
+		ctx.sentryHub.Scope().SetTag(key, value)
+	}
+}
+
+func (ctx *Context) HubError(err error) {
+	if ctx.sentryHub != nil && SentryEnabled {
+		ctx.sentryHub.CaptureException(err)
+	}
+}
+
+func (ctx *Context) HubMessage(msg string) {
+	if ctx.sentryHub != nil && SentryEnabled {
+		ctx.sentryHub.CaptureMessage(msg)
+	}
+}
+
+func (ctx *Context) HubBreadcrumb(category, msg string, data map[string]interface{}) {
+	if ctx.sentryHub != nil && SentryEnabled {
+		ctx.sentryHub.AddBreadcrumb(&sentry.Breadcrumb{
+			Category: category,
+			Message:  msg,
+			Data:     data,
+			Level:    sentry.LevelInfo,
+		},
+			&sentry.BreadcrumbHint{})
+	}
 }

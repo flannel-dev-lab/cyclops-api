@@ -89,6 +89,11 @@ func (r *Routes) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		}
 	}
 
+	// Add tags to the sentry hub from the context
+	ctx.SetTag("Method", ctx.RouteInfo.Method)
+	ctx.SetTag("Resource", ctx.RouteInfo.ResourceName)
+	ctx.SetTag("SubResource", ctx.RouteInfo.SubresourceName)
+
 	// Load the subresource
 	if ctx.RouteInfo.SubresourceName != "" {
 		resource, exists := Router.Map[ctx.RouteInfo.VersionName].Resources[ctx.RouteInfo.ResourceName]
