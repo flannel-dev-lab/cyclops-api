@@ -1,14 +1,14 @@
 package cycapi
 
 import (
+	"github.com/getsentry/sentry-go"
 	"log"
 	"time"
-	"github.com/getsentry/sentry-go"
 )
 
 var SentryEnabled = false
 
-func Init(dsn, environment string) {
+func SentryInit(dsn, environment string) {
 	err := sentry.Init(sentry.ClientOptions{
 		Dsn:         dsn,
 		Environment: environment,
