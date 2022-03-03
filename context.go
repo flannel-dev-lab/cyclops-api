@@ -28,6 +28,7 @@ type Context struct {
 		CustomMethod    string
 	}
 	sentryHub *sentry.Hub
+	Logger    *StandardLogger
 }
 
 func NewContext(res http.ResponseWriter, req *http.Request) *Context {
@@ -72,6 +73,7 @@ func NewContext(res http.ResponseWriter, req *http.Request) *Context {
 		Data:      data,
 		SpanRoot:  spanRoot,
 		sentryHub: hub,
+		Logger:    NewLogger(),
 	}
 }
 
